@@ -1,0 +1,83 @@
+import random
+import os
+
+# دالة لقراءة أعلي نتيجة مسجلة
+def get_high_score():
+    if os.path.exists("highscore.txt"):
+        with open("highscore.txt", "current_mode_r") as file:
+            try:
+                return int(file.read())
+            except ValueError:
+                return None
+    return None
+    
+# دالة لحفظ النتيجة الجديدة
+def save_high_score(score):
+    with open("highscore.txt" ,"w") as file:
+        file.write(str(score))
+        
+def full_guessing_game():
+    print("مرحباً بك في لعبة تخمين الأرقام")
+    
+    #عرض أعلي نتيجة سابقة إن وجدت
+    high_score = get_high_score()
+    if high_score:
+        print(f"الرقم القياسي الحالي هو:{high_score} محاولات")
+    else:
+        print("لا يوجد رقم قياسي مسجل بعد!")
+  
+    # المستخدم يحدد النطاق
+    while True:
+        try:
+            start_num = int(input("\nأدخل بداية النطاق:"))
+            end_num = int(input("\nأدخل نهاية النطاق:"))
+            if start_num >= end_num:
+                print("البداية يجب أن تكون أصغر من النهاية")
+                continue
+            break
+        except ValueError:
+            print("أدخل أرقاماً صحيحة فقط.")
+            
+    #المستخدم يحدد عدد المحاولات(العداد التنازلي)
+    while True:
+        try:
+            max_attempts = int(input("حدد عدد المحاولات لك لخسارة اللعبة:"))
+            if max_attempts <= 0:
+                print("يجب أن يكون عدد المحاولات 1أو أكثر")
+                continue
+            break
+        except ValueError:
+            print("أدخل رقما صحيحاً")
+    
+    secret_number = random.randint(start_num, end_num)
+    attempts = 0
+    
+    print(f"\nاخترت لك رقماً بين{start_num} و{end_num} أمامك {max_attempts} محاولات")
+    
+    #حلقة اللعبة الأساسية
+    while attempts < max_attempts:
+        try:
+            remaining = max_attempts - attempts
+            guess = int(input(f"\n[محاولة {attempts + 1}/{max_attempts} - متبقي {remaining}] أدخل تخمينك: "))
+            attempts += 1
+            if guess < secret_number:
+                print("رقمك صغير، أعد المحاولة")
+            elif guess > secret_number:
+                print("رقمك كبير، أعد المحاولة")    
+            else:
+                print(f"أحسنت! خمنت الرقم الصحيح{secret_number} في {attempts} محاولات")
+                
+                #التحقق من كسر الرقم القياسي
+                if high_score is None or attempts < high_score:
+                    print("رائع! لقد حطمت الرقم القياسي القديم وسجلت رقماً جديداً")
+                    save_high_score(attempts)
+                break
+        except ValueError:
+            print("من فضلك أدخل رقماً صحيحاً")
+    else:
+        # تنفذ هذه الجملة في حال انتهاء حلقة while دون بريك (أي نفاد المحاولات)
+        print(f"\n💀 للأسف نفدت محاولاتك! الرقم الصحيح كان: {secret_number}. حظاً أوفر المرة القادمة!")
+        
+#تشغيل اللعبة
+full_guessing_game()
+  
